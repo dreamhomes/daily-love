@@ -16,6 +16,7 @@ from daily_sentence import *
 from date import get_date
 from china_weather import get_information
 
+# 若出现二维码显示错误则令 enableCmdQR=2
 itchat.auto_login(hotReload=True, enableCmdQR=True)
 
 parser = argparse.ArgumentParser(description="*** Input parameters ***")
