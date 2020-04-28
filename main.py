@@ -11,6 +11,7 @@ import schedule
 import time
 import datetime
 import itchat
+import threading
 
 from daily_sentence import *
 from date import get_date
@@ -27,23 +28,37 @@ parser.add_argument('-t', '--time', default="08:00", type=str, help='reminder ti
 args = parser.parse_args()
 print(args.sender, args.recipient, args.city, args.time)
 
-# xxx = "来自 @"+args.sender+" 的爱，么么哒：\n\n"
-# location = "http://www.weather.com.cn/weather/" + args.city + ".shtml"
-#
-# name = itchat.search_friends(nickName=args.recipient)[0]['UserName']
-#
-#
-# def main():
-#     message = xxx + get_date() + get_daily_love() + get_information(location)
-#     print('The message sending time:', datetime.datetime.now())
-#     print(message)
-#     # test
-#     # itchat.send_msg(msg=message, toUserName='filehelper')
-#     itchat.send_msg(msg=message, toUserName=name)
-#
-#
-# # schedule.every(60).seconds.do(main)
-# schedule.every().day.at(args.time).do(main)
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+begin = "亲爱的 @琪琪宝贝：\n\n"
+end = "\n\n来自 @"+args.sender+" 的爱，么么哒！"
+location = "http://www.weather.com.cn/weather/" + args.city + ".shtml"
+
+name = itchat.search_friends(nickName=args.recipient)[0]['UserName']
+
+
+def main():
+    message = begin + get_date() + get_daily_love() + get_information(location) + end
+    print('The message sending time:', datetime.datetime.now())
+    print(message)
+    # test
+    # itchat.send_msg(msg=message, toUserName='filehelper')
+    itchat.send_msg(msg=message, toUserName=name)
+
+
+def hold():
+    """
+    hold wechat sign in.
+    :return:
+    """
+    itchat.send_msg(msg="", toUserName='filehelper')
+
+
+def threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
+
+
+schedule.every().hour.do(threaded, hold)
+schedule.every().day.at(args.time).do(threaded, main)
+while True:
+    schedule.run_pending()
+    time.sleep(1)
